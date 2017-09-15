@@ -5,13 +5,16 @@
 <title>Choose Billing Records</title>
 </head>
 <body>
-
-	<h2>Client: {{ clientName }}</h2>
+{{> _navigation }}
+	
+	{{ #errorMessage }}
+		{{ errorMessage }}
+	{{ /errorMessage }}
 	<form method="post" action="/invoices/create">
 		<input type="text" name="invoiceNumber" placeholder="Invoice Number"
 			required><br>
 		<br>
-
+	
 		<table>
 			<thead>
 				<tr>
@@ -46,6 +49,8 @@
 		<br>
 		<br>
 		<button>Create Invoice</button>
+		
+	
 
 		<input type="hidden" name="{{_csrf.parameterName }}"
 			value="{{ _csrf.token }}"> <input type="hidden"

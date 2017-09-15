@@ -62,35 +62,47 @@ public class InvoiceController {
 		Company client = companyRepository.findOne(clientId);
 		mv.addObject("clientId", clientId);
 		mv.addObject("clientName", client.getName());
-		mv.addObject("records", recordRepository.findByClientId(clientId));
+		mv.addObject("records", recordRepository.findByClientIdAndLineItemIsNull(clientId));
 
 		return mv;
 	}
 
-	@PostMapping("create")
-	public String createInvoice(Invoice invoice, long clientId, long[] recordIds, Authentication auth) {
+	@PostMapping("/create")
+	public ModelAndView createInvoice(Invoice invoice, long clientId, long[] recordIds, Authentication auth) {
 		User creator = (User) auth.getPrincipal();
-		List<BillingRecord> records = recordRepository.findByIdIn(recordIds);
-		long nowish = Calendar.getInstance().getTimeInMillis();
-		Date now = new Date(nowish);
-
-		List<InvoiceLineItem> items = new ArrayList<InvoiceLineItem>();
-		for (BillingRecord record : records) {
-			InvoiceLineItem lineItem = new InvoiceLineItem();
-			lineItem.setBillingRecord(record);
-			lineItem.setCreatedBy(creator);
-			lineItem.setCreatedOn(now);
-			lineItem.setInvoice(invoice);
-			items.add(lineItem);
+		if(recordIds == null) {
+			ModelAndView mv = new ModelAndView("/invoices/step-2"); 
+			mv.addObject("clientId", clientId); 
+			mv.addObject("records", recordRepository.findByClientIdAndLineItemIsNull(clientId)); 
+			mv.addObject("errorMessage", "Please select at least one billing record."); 
+			return mv; 
+		} else {
+			List<BillingRecord> records = recordRepository.findByIdIn(recordIds); 
+			long nowish = Calendar.getInstance().getTimeInMillis();
+			Date now = new Date(nowish);
+			
+			List<InvoiceLineItem> items = new ArrayList<InvoiceLineItem>(); 
+			
+				for(BillingRecord record : records) { 
+					InvoiceLineItem lineItem = new InvoiceLineItem();
+					lineItem.setBillingRecord(record); 
+					lineItem.setCreatedBy(creator);
+					lineItem.setCreatedOn(now);
+					lineItem.setInvoice(invoice);
+					items.add(lineItem); 
+				}
+				
+			invoice.setCompany(companyRepository.findOne(clientId));
+			invoice.setCreatedBy(creator);
+			invoice.setCreatedOn(now);
+			invoice.setLineItems(items);
+			invoiceRepository.save(invoice); 
 		}
-
-		invoice.setLineitems(items);
-		invoice.setCreatedBy(creator);
-		invoice.setCreatedOn(now);
-		invoice.setCompany(companyRepository.findOne(clientId));
-		invoiceRepository.save(invoice);
-
-		return "redirect:/invoices";
+		
+		ModelAndView mv = new ModelAndView("redirect:/invoices"); 
+		return mv; 
 	}
+	
+		
 
 }

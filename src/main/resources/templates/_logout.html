@@ -1,0 +1,5 @@
+<form method="post" action="/logout">
+	<button>Logout</button>
+	<input type="hidden" name="{{_csrf.parameterName }}" value="{{ _csrf.token }}">
+	
+</form>

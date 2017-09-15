@@ -75,7 +75,7 @@ public class Invoice {
 		return lineItems;
 	}
 
-	public void setLineitems(List<InvoiceLineItem> lineItems) {
+	public void setLineItems(List<InvoiceLineItem> lineItems) {
 		this.lineItems = lineItems;
 	}
 

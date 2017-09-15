@@ -6,4 +6,7 @@ import com.theironyard.invoicify.models.Company;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
+	Company findByName (String name);
+
+ 
 }
