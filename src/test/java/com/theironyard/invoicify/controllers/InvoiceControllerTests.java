@@ -10,19 +10,29 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.theironyard.invoicify.models.User;
+import com.theironyard.invoicify.repositories.BillingRecordRepository;
+import com.theironyard.invoicify.repositories.CompanyRepository;
+import com.theironyard.invoicify.repositories.InvoiceRepository;
 
 public class InvoiceControllerTests {
 	
 	private InvoiceController controller;
 	private Authentication authentication;
+	private CompanyRepository companyRepo;
+	private InvoiceRepository invoiceRepo;
+	private BillingRecordRepository billingRecordRepo;
 	private User user;
 	
 	@Before
 	public void setup() {
+		this.companyRepo = mock(CompanyRepository.class);
+		this.invoiceRepo = mock(InvoiceRepository.class);
+		this.billingRecordRepo = mock(BillingRecordRepository.class);
+		
 		user = new User();
 		authentication = mock(Authentication.class);
 		when(authentication.getPrincipal()).thenReturn(user);
-		controller = new InvoiceController();
+		controller = new InvoiceController(companyRepo, billingRecordRepo, invoiceRepo);
 	}
 
 	@Test
